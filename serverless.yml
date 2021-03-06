@@ -25,26 +25,6 @@ provider:
   region: us-east-1 # Default region to be used. Default is "us-east-1"
   memorySize: 256
   timeout: 10
-  environment:
-    DYNAMODB_TABLE: ${self:service}-${opt:stage, self:provider.stage}
-    SNS_TOPIC: ${self:service}-${opt:stage, self:provider.stage}
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - dynamodb:*
-      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
-    - Effect: Allow
-      Action:
-        - sns:*
-      Resource: "arn:aws:sns:${opt:region, self:provider.region}:*"
-    - Effect: Allow
-      Action:
-        - sqs:*
-      Resource: "arn:aws:sqs:${opt:region, self:provider.region}:*"
-    - Effect: Allow
-      Action:
-        - apigateway:*
-      Resource: "arn:aws:apigateway:${opt:region, self:provider.region}:*"
 
 functions:
   hello:
@@ -72,8 +52,9 @@ stepFunctions:
             End: true
       alarms:
         topics:
-          alarm:
-            topic: ${self:provider.environment.SNS_TOPIC}
+          ok: 'arn:aws:sns:${opt:region, self:provider.region}:NotifyMe'
+          alarm: 'arn:aws:sns:${opt:region, self:provider.region}:NotifyMe'
+          insufficientData: 'arn:aws:sns:${opt:region, self:provider.region}:NotifyMe'
         metrics:
           - executionsTimeOut
           - executionsFailed
