@@ -1,0 +1,24 @@
+{
+  "name": "serverless-step-function-app",
+  "version": "1.0.0",
+  "description": "AWS Step function with Serverless Framework",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WayneGreeley/serverless-step-function-app.git"
+  },
+  "author": "Wayne Greeley",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/WayneGreeley/serverless-step-function-app/issues"
+  },
+  "homepage": "https://github.com/WayneGreeley/serverless-step-function-app#readme",
+  "dependencies": {
+    "serverless": "^2.28.7",
+    "serverless-plugin-aws-alerts": "^1.7.1",
+    "serverless-step-functions": "^2.29.0"
+  }
+}
