@@ -51,7 +51,7 @@ stepFunctions:
                 foo:
                   DataType: String
                   StringValue: bar
-            End: false
+            Next: Publish SQS message
 
           Publish SQS message:
             Type: Task
