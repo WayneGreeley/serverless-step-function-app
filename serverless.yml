@@ -33,14 +33,13 @@ functions:
 
 stepFunctions:
   stateMachines:
-    apiGatewayTrigger:
-      name: api-gateway-trigger
+    MyExampleStepFunction:
+      name: my-example
       events:
         - http:
             path: /
             method: POST
-    MyExampleStepFunction:
-      name: my-example
+            
       definition:
         Comment: Demonstrate how the service integrations work
         StartAt: Publish SQS message
