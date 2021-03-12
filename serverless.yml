@@ -59,14 +59,22 @@ stepFunctions:
             Next: Do Something
 
           Do Something:
-            Type: Task
-            Resource:
-              Fn::GetAtt: [HelloLambdaFunction, Arn]
+            Type: Map
+            InputPath: "$.detail"
+            ItemsPath: "$.shipped"
+            Iterator:
+              StartAt: Process Item
+                States:
+                  Process Item:
+                    Type: Task
+                    Resource:
+                      Fn::GetAtt: [HelloLambdaFunction, Arn]
+                    Catch:
+                    - ErrorEquals:
+                      - States.ALL
+                      Next: Fail State
+                    End: true
             Next: Publish SNS message
-            Catch:
-            - ErrorEquals:
-              - States.ALL
-              Next: Fail State
             
           Publish SNS message:
             Type: Task
