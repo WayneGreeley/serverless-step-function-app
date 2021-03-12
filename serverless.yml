@@ -1,22 +1,23 @@
 service: serverless-step-function-app
 
 plugins:
-  - serverless-plugin-aws-alerts
   - serverless-step-functions
+  # - serverless-plugin-aws-alerts
 
-custom:
-  alerts:
-    stages:
-      - dev
-    topics:
-      alarm:
-        topic: ${self:provider.environment.SNS_TOPIC}
-        notifications:
-          - protocol: email
-            endpoint: it199@hotmail.com 
-    alarms:
-      - functionErrors
-      - functionThrottles
+# custom:
+#   alerts:
+#     stages:
+#       - dev
+#     topics:
+#       alarm:
+#         topics:
+#           alarm: 'arn:aws:sns:${opt:region, self:provider.region}:NotifyMe'
+#         notifications:
+#           - protocol: email
+#             endpoint: it199@hotmail.com 
+#     alarms:
+#       - functionErrors
+#       - functionThrottles
 
 provider:
   name: aws
@@ -38,6 +39,7 @@ stepFunctions:
         Comment: Demonstrate how the SNS integration works
         StartAt: Publish SNS message
         States:
+
           Publish SNS message:
             Type: Task
             Resource: arn:aws:states:::sns:publish
@@ -49,18 +51,34 @@ stepFunctions:
                 foo:
                   DataType: String
                   StringValue: bar
+            End: false
+
+          Publish SQS message:
+            Type: Task
+            Resource: arn:aws:states:::sqs:sendMessage
+            Parameters:
+              QueueUrl:
+                Ref: MyQueue
+              MessageBody: This is a static message
+              MessageAttributes:
+                foo:
+                  DataType: String
+                  StringValue: bar
             End: true
+
       alarms:
-        topics:
-          ok: 'arn:aws:sns:${opt:region, self:provider.region}:NotifyMe'
-          alarm: 'arn:aws:sns:${opt:region, self:provider.region}:NotifyMe'
-          insufficientData: 'arn:aws:sns:${opt:region, self:provider.region}:NotifyMe'
+        topics: # 728710102994
+          # ok: 'arn:aws:sns:us-east-1:${self:provider.region}:my-topic' 
+          #insufficientData: 'arn:aws:sns:${opt:region}:${self:provider.region}:NotifyMe'
+          #alarm: 'arn:aws:sns:us-east-1:${self:provider.region}:my-topic'
+          alarm: 'arn:aws:sns:#{AWS::Region}:#{AWS::AccountId}:my-topic'
         metrics:
-          - executionsTimeOut
           - executionsFailed
           - executionsAborted
           - executionThrottled
 
+#lambda function with params
+            #Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${opt:stage}-writeS3"
 resources:
   Resources:
     AlarmTopic:
@@ -68,3 +86,7 @@ resources:
       Properties:
         DisplayName: my-topic
         TopicName: my-topic
+    MyQueue:
+      Type: AWS::SQS::Queue
+      Properties :
+        QueueName : my-queue
