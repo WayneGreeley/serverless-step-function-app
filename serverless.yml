@@ -42,39 +42,50 @@ stepFunctions:
             
       definition:
         Comment: Demonstrate how the service integrations work
-        StartAt: Publish SQS message
+        StartAt: ParallelDivide
         States:
-
-          Publish SQS message:
-            Type: Task
-            Resource: arn:aws:states:::sqs:sendMessage
-            Parameters:
-              QueueUrl:
-                Ref: MyQueue
-              MessageBody: This is a static message
-              MessageAttributes:
-                foo:
-                  DataType: String
-                  StringValue: bar
-            Next: Do Something
-
-          Do Something:
-            Type: Map
-            InputPath: "$.detail"
-            ItemsPath: "$.shipped"
-            Iterator:
-              StartAt: Process Item
-                States:
-                  Process Item:
-                    Type: Task
-                    Resource:
-                      Fn::GetAtt: [HelloLambdaFunction, Arn]
-                    Catch:
-                    - ErrorEquals:
-                      - States.ALL
-                      Next: Fail State
-                    End: true
+        
+          ParallelDivide:
+            Type: Parallel
             Next: Publish SNS message
+            Branches:
+              - StartAt: Publish SQS message
+                States:
+
+                  Publish SQS message:
+                    Type: Task
+                    InputPath: "$"
+                    ResultPath: "$"
+                    Resource: arn:aws:states:::sqs:sendMessage
+                    Parameters:
+                      QueueUrl:
+                        Ref: MyQueue
+                      MessageBody: This is a static message
+                      MessageAttributes:
+                        foo:
+                          DataType: String
+                          StringValue: bar
+                    End: true
+
+              - StartAt: Do Something
+                States:
+                  Do Something:
+                    Type: Map
+                    InputPath: "$.detail"
+                    ItemsPath: "$.shipped"
+                    Iterator:
+                      StartAt: Process Item
+                      States:
+                        Process Item:
+                          Type: Task
+                          Resource:
+                            Fn::GetAtt: [HelloLambdaFunction, Arn]
+                          # Catch:
+                          # - ErrorEquals:
+                          #   - States.ALL
+                          #   Next: Fail State
+                          End: true
+                    End: true
             
           Publish SNS message:
             Type: Task
@@ -88,10 +99,10 @@ stepFunctions:
                   DataType: String
                   StringValue: bar
             End: true
-
-          Fail State:
-            Type: Fail
-            Cause: "Unknown"
+            
+          # Fail State:
+          #   Type: Fail
+          #   Cause: "Unknown"
 
       alarms:
         topics: 
