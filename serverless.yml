@@ -63,6 +63,10 @@ stepFunctions:
             Resource:
               Fn::GetAtt: [HelloLambdaFunction, Arn]
             Next: Publish SNS message
+            Catch:
+            - ErrorEquals:
+              - States.ALL
+              Next: Fail State
             
           Publish SNS message:
             Type: Task
@@ -76,6 +80,10 @@ stepFunctions:
                   DataType: String
                   StringValue: bar
             End: true
+
+          Fail State:
+            Type: Fail
+            Cause: "Unknown"
 
       alarms:
         topics: 
