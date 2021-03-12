@@ -33,25 +33,18 @@ functions:
 
 stepFunctions:
   stateMachines:
-    snsExample:
-      name: sns-example
+    apiGatewayTrigger:
+      name: api-gateway-trigger
+      events:
+        - http:
+            path: /
+            method: POST
+    MyExampleStepFunction:
+      name: my-example
       definition:
-        Comment: Demonstrate how the SNS integration works
-        StartAt: Publish SNS message
+        Comment: Demonstrate how the service integrations work
+        StartAt: Publish SQS message
         States:
-
-          Publish SNS message:
-            Type: Task
-            Resource: arn:aws:states:::sns:publish
-            Parameters:
-              Message: "{ \"answer\": 42 }"
-              TopicArn:
-                Ref: AlarmTopic
-              MessageAttributes:
-                foo:
-                  DataType: String
-                  StringValue: bar
-            Next: Publish SQS message
 
           Publish SQS message:
             Type: Task
@@ -64,14 +57,30 @@ stepFunctions:
                 foo:
                   DataType: String
                   StringValue: bar
+            Next: Do Something
+
+          Do Something:
+            Type: Task
+            Resource:
+              Fn::GetAtt: [HelloLambdaFunction, Arn]
+            Next: Publish SNS message
+            
+          Publish SNS message:
+            Type: Task
+            Resource: arn:aws:states:::sns:publish
+            Parameters:
+              Message: "{ \"answer\": 42 }"
+              TopicArn:
+                Ref: AlarmTopic
+              MessageAttributes:
+                foo:
+                  DataType: String
+                  StringValue: bar
             End: true
 
       alarms:
-        topics: # 728710102994
-          # ok: 'arn:aws:sns:us-east-1:${self:provider.region}:my-topic' 
-          #insufficientData: 'arn:aws:sns:${opt:region}:${self:provider.region}:NotifyMe'
-          #alarm: 'arn:aws:sns:us-east-1:${self:provider.region}:my-topic'
-          alarm: 'arn:aws:sns:#{AWS::Region}:#{AWS::AccountId}:my-topic'
+        topics: 
+          alarm: 'arn:aws:sns:us-east-1:#{AWS::AccountId}:my-topic'
         metrics:
           - executionsFailed
           - executionsAborted
