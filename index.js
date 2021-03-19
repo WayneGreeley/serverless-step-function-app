@@ -3,26 +3,24 @@ const AWS = require('aws-sdk');
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
 module.exports.handler = async (event, context) => {
-    console.log(JSON.stringify(event))
+    console.log(JSON.stringify(event));
+    console.log(JSON.stringify(context));
     
-    const settingdata = JSON.parse(event);
     const timestamp = new Date().getTime();
+    const myTableName = process.env.DYNAMODB_TABLE.replace(/.*:/,'').substr(6);
 
     const params = {
-        TableName: process.env.DYNAMODB_TABLE,
+        TableName: myTableName,
         Item: {
-            CategoryKey: 'pk',
-            SettingKey: timestamp
+            CategoryKey: event.category + "#" + event.categoryid,
+            SettingKey: event.setting + "#" + event.effectivedate,
+            SettingValue: event.settingvalue,
+            LastUpdated: timestamp,
         }
     };
 
     // insert or update the item
-    try {
-        const storeddata = await dynamoDb.put().promise();
-        console.log("success");
-        return storeddata;
-    } catch (err) {
-        // handle potential errors
-        console.error("fail", err.message);
-    }
+    const storeddata = await dynamoDb.put(params).promise();
+    console.log("success");
+    return storeddata;
 }

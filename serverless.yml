@@ -27,7 +27,8 @@ provider:
   memorySize: 256
   timeout: 10
   environment:
-    DYNAMODB_TABLE: Fn::GetAtt: [SettingsTable, Arn]
+    DYNAMODB_TABLE: #${self:service}-${opt:stage, self:provider.stage}
+      Fn::GetAtt: [SettingsTableStaging, Arn]
   iamRoleStatements:
     - Effect: "Allow"
       Action:
@@ -40,7 +41,7 @@ provider:
         - "dynamodb:Update*"
         - "dynamodb:PutItem"
       Resource:
-        Fn::GetAtt: [SettingsTable, Arn]
+        Fn::GetAtt: [SettingsTableStaging, Arn]
 
 functions:
   hello:
@@ -52,7 +53,7 @@ stepFunctions:
       name: my-example
       events:
         - http:
-            path: /
+            path: /settingload/
             method: POST
             
       definition:
@@ -87,7 +88,7 @@ stepFunctions:
                   Do Something:
                     Type: Map
                     InputPath: "$.detail"
-                    ItemsPath: "$.shipped"
+                    ItemsPath: "$.settings"
                     Iterator:
                       StartAt: Process Item
                       States:
@@ -141,10 +142,10 @@ resources:
       Properties :
         QueueName : my-queue
 
-    SettingsTable:
+    SettingsTableStaging:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: setting-table
+        TableName: setting-table-staging
         BillingMode: PROVISIONED
         AttributeDefinitions: 
           - AttributeName : CategoryKey
@@ -155,7 +156,7 @@ resources:
           - AttributeName: CategoryKey
             KeyType: HASH
           - AttributeName: SettingKey
-            KeyType: Range
+            KeyType: RANGE
         ProvisionedThroughput:
           ReadCapacityUnits: 5
           WriteCapacityUnits: 5
