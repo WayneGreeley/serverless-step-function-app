@@ -44,8 +44,8 @@ provider:
         Fn::GetAtt: [SettingsTableStaging, Arn]
 
 functions:
-  hello:
-    handler: index.handler
+  Settlingload:
+    handler: setting.handler
 
 stepFunctions:
   stateMachines:
@@ -95,7 +95,7 @@ stepFunctions:
                         Process Item:
                           Type: Task
                           Resource:
-                            Fn::GetAtt: [HelloLambdaFunction, Arn]
+                            Fn::GetAtt: [SettlingloadLambdaFunction, Arn]
                           # Catch:
                           # - ErrorEquals:
                           #   - States.ALL
