@@ -1,5 +1,6 @@
 # serverless-step-function-app
 Serverless StepFunctions Application
+ - parallel map state is used to break up the units of work and each is sent to a lambda to be processed
 
 # commands used to build this app
 ## npm init
@@ -16,18 +17,20 @@ Serverless StepFunctions Application
 
 ```
 POST
-https://{{step_key}}.execute-api.us-east-1.amazonaws.com/dev/
+https://{{step_key}}.execute-api.us-east-1.amazonaws.com/dev/settingload/
 
 {
-  "ship-date": "2016-03-14T01:59:00Z",
+  "upload-date": "2021-03-14",
   "detail": {
-    "delivery-partner": "UQS",
-    "shipped": [
-      { "prod": "R31", "dest-code": 9511, "quantity": 1344 },
-      { "prod": "S39", "dest-code": 9511, "quantity": 40 },
-      { "prod": "R31", "dest-code": 9833, "quantity": 12 },
-      { "prod": "R40", "dest-code": 9860, "quantity": 887 },
-      { "prod": "R40", "dest-code": 9511, "quantity": 1220 }
+    "migrationname": "initial load",
+    "migrationid": "1",
+    "settings": [
+      { "category": "client", "categoryid": "9511", "setting": "name", "effectivedate": "1900-01-01", "settingvalue": "abc1"},
+      { "category": "client", "categoryid": "9511", "setting": "name", "effectivedate": "2021-01-01", "settingvalue": "abc2"},
+      { "category": "client", "categoryid": "9511", "setting": "name", "effectivedate": "1900-01-01", "settingvalue": "abcde"},
+      { "category": "client", "categoryid": "9833", "setting": "name", "effectivedate": "1900-01-01", "settingvalue": "abcdeeeeeeeee"},
+      { "category": "client", "categoryid": "9860", "setting": "name", "effectivedate": "1900-01-01", "settingvalue": "abc"},
+      { "category": "client", "categoryid": "9511", "setting": "size", "effectivedate": "2021-01-01", "settingvalue": "999"}
     ]
   }
 }
