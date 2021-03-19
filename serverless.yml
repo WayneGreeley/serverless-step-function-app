@@ -26,6 +26,21 @@ provider:
   region: us-east-1 # Default region to be used. Default is "us-east-1"
   memorySize: 256
   timeout: 10
+  environment:
+    DYNAMODB_TABLE: Fn::GetAtt: [SettingsTable, Arn]
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "dynamodb:BatchGet*"
+        - "dynamodb:DescribeTable"
+        - "dynamodb:Get*"
+        - "dynamodb:Query"
+        - "dynamodb:Scan"
+        - "dynamodb:BatchWrite*"
+        - "dynamodb:Update*"
+        - "dynamodb:PutItem"
+      Resource:
+        Fn::GetAtt: [SettingsTable, Arn]
 
 functions:
   hello:
@@ -125,3 +140,22 @@ resources:
       Type: AWS::SQS::Queue
       Properties :
         QueueName : my-queue
+
+    SettingsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: setting-table
+        BillingMode: PROVISIONED
+        AttributeDefinitions: 
+          - AttributeName : CategoryKey
+            AttributeType : S
+          - AttributeName : SettingKey
+            AttributeType : S
+        KeySchema:
+          - AttributeName: CategoryKey
+            KeyType: HASH
+          - AttributeName: SettingKey
+            KeyType: Range
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5

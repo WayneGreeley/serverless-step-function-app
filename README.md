@@ -1,7 +1,7 @@
 # serverless-step-function-app
 Serverless StepFunctions Application
 
-
+# commands used to build this app
 ## npm init
 ## npm install serverless --save
 ## npm install serverless-plugin-aws-alerts --save
