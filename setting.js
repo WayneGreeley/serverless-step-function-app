@@ -1,10 +1,12 @@
 const AWS = require('aws-sdk');
+// const awsXRay = require('aws-xray-sdk');
+// const awsSdk = awsXRay.captureAWS(require('aws-sdk'));
 
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
 module.exports.handler = async (event, context) => {
     console.log(JSON.stringify(event));
-    console.log(JSON.stringify(context));
+    //console.log(JSON.stringify(context));
     
     const timestamp = new Date().getTime();
     const myTableName = process.env.DYNAMODB_TABLE.replace(/.*:/,'').substr(6);

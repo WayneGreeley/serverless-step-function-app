@@ -2,6 +2,7 @@ service: serverless-step-function-app
 
 plugins:
   - serverless-step-functions
+  - serverless-webpack
   # - serverless-plugin-aws-alerts
 
 # custom:
@@ -24,6 +25,7 @@ provider:
   runtime: nodejs12.x
   stage: dev # Default stage to be used. Default is "dev"
   region: us-east-1 # Default region to be used. Default is "us-east-1"
+  tracing: true # enable tracing
   memorySize: 256
   timeout: 10
   environment:
@@ -89,6 +91,10 @@ stepFunctions:
                     Type: Map
                     InputPath: "$.detail"
                     ItemsPath: "$.settings"
+                    Parameters:
+                      - "migrationid.$": "$.migrationid"
+                      - "index.$": "$$.Map.Item.Index"
+                      - "item.$": "$$.Map.Item.Value"
                     Iterator:
                       StartAt: Process Item
                       States:

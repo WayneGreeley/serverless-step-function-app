@@ -8,7 +8,19 @@ Serverless StepFunctions Application
 ## npm install serverless-plugin-aws-alerts --save
 ## npm install serverless-step-functions --save
 
+## npm install serverless-webpack --save
+## npm install webpack --save
+## npm install webpack-node-externals --save
 
+## npm i aws-xray-sdk --save
+
+
+# commands to run in Cloud 9
+## clone this repo
+## cd into folder
+## npm i -g serverless
+## npm i 
+## sls deploy
 
 
 
