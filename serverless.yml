@@ -96,7 +96,7 @@ stepFunctions:
                     ItemsPath: "$.settings"
                     Parameters:
                       "migrationid.$": "$.migrationid"
-                      "setting.$": "$$.Map.Item.Value"
+                      "settingObject.$": "$$.Map.Item.Value"
                     Iterator:
                       StartAt: Process Item
                       States:
