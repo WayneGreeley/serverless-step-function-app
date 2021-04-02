@@ -48,6 +48,8 @@ provider:
 functions:
   Settlingload:
     handler: setting.handler
+  HelloLoad:
+    handler: hello.handler
 
 stepFunctions:
   stateMachines:
@@ -78,7 +80,8 @@ stepFunctions:
                     Parameters:
                       QueueUrl:
                         Ref: MyQueue
-                      MessageBody: This is a static message
+                      #MessageBody: This is a static message
+                      MessageBody.$: "$.detail"
                       MessageAttributes:
                         foo:
                           DataType: String
@@ -92,9 +95,8 @@ stepFunctions:
                     InputPath: "$.detail"
                     ItemsPath: "$.settings"
                     Parameters:
-                      - "migrationid.$": "$.migrationid"
-                      - "index.$": "$$.Map.Item.Index"
-                      - "item.$": "$$.Map.Item.Value"
+                      "migrationid.$": "$.migrationid"
+                      "setting.$": "$$.Map.Item.Value"
                     Iterator:
                       StartAt: Process Item
                       States:
@@ -106,6 +108,11 @@ stepFunctions:
                           # - ErrorEquals:
                           #   - States.ALL
                           #   Next: Fail State
+                          Next: Process Response
+                        Process Response:
+                          Type: Task
+                          Resource:
+                            Fn::GetAtt: [HelloLoadLambdaFunction, Arn]
                           End: true
                     End: true
             
